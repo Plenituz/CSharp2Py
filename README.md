@@ -19,17 +19,17 @@ namespace Motio.Meshing
 
         public bool Contains(int index)
         {
-			...
+            ...
         }
 
         public int Other(int index)
         {
-			...
+            ...
         }
 
         public static IList<EdgeTrain> UnfoldAllEdges(HashSet<EdgeSet> edges)
         {
-			...
+            ...
         }
 
         public static EdgeTrain UnfoldEdges(HashSet<EdgeSet> edges)
