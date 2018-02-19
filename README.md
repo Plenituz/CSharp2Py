@@ -7,6 +7,8 @@ For example if you have the following C# class
 ```c#
 namespace Motio.Meshing
 {
+	using EdgeTrain = System.Collections.Generic.IList<int>;
+
     public struct EdgeSet
     {
         public int indexFirst, indexSecond;
@@ -40,7 +42,7 @@ namespace Motio.Meshing
 }
 ```
 
-A folder structure will be created to emulate the namespaces:
+A folder structure will be created to emulate the namespaces
 ```
 Motio/
 ├── Meshing/
@@ -50,7 +52,7 @@ Motio/
 
 `Motio/__init__.py` will be empty but `Motio/Meshing/__init__.py` will contain the following class definition
 
-````python
+```python
 from System import ValueType
 class EdgeSet(ValueType):
     @staticmethod
@@ -85,7 +87,6 @@ class EdgeSet(ValueType):
         """
         pass
 ```
-
 
 The idea is to drop the generated folders in your IDE python path.
 The main use is to have your python IDE's auto complete work when you are working on the python side of an IronPython project.
