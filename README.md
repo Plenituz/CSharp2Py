@@ -1,6 +1,7 @@
 ﻿# What?
 
 Generate the equivalent python interface for a given C# dll/assembly.
+If you generate the XML description of your dll while compiling, it will be taken in account when creating the python class.
 
 For example if you have the following C# class
 
@@ -100,7 +101,7 @@ To use it you have to build it yourself using Visual Studio.
  - Open the project on Visual Studio
  - Go to Build>Build Solution (Ctrl+Shift+B)
  - Open a terminal on in the output directory
- - .\Motio.CSharp2Py.exe [directory with dlls to read] [output directory] [filter regex on the dll name]
+ - `.\Motio.CSharp2Py.exe [directory with dlls to read] [output directory] [filter regex on the dll name]`
 
 Example:
 ```
