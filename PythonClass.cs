@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Motio.CSharp2Py.Doc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Motio.CSharp2Py
 {
@@ -11,19 +13,23 @@ namespace Motio.CSharp2Py
         Type className;
         List<Type> parentClasses = new List<Type>();
 
-        PythonConstructor ctr = new PythonConstructor();
+        PythonConstructor ctr;
         List<PythonEvent> events = new List<PythonEvent>();
         List<PythonField> fields = new List<PythonField>();
         List<PythonStaticField> staticFields = new List<PythonStaticField>();
         List<PythonMethod> methods = new List<PythonMethod>();
         List<PythonStaticMethod> staticMethods = new List<PythonStaticMethod>();
 
+        public DocParser xmlDoc;
         public string Namespace => className.Namespace;
-        public string Name => CleanupName(className);
+        public string Name => Utils.CleanupNamePython(className);
 
-        public PythonClass(Type type)
+        public PythonClass(Type type, XDocument xmlDoc = null)
         {
+            if(xmlDoc != null)
+                this.xmlDoc = new DocParser(xmlDoc);
             className = type;
+            ctr = new PythonConstructor(this);
             if (type.BaseType != null)
                 parentClasses.Add(type.BaseType);
             parentClasses.AddRange(type.GetInterfaces());
@@ -46,21 +52,22 @@ namespace Motio.CSharp2Py
 
         public void Add(MemberInfo member, bool isStatic = false)
         {
+
             if (member is FieldInfo || member is PropertyInfo)
             {
                 if (member is FieldInfo field)
                 {
                     if (isStatic)
-                        staticFields.Add(new PythonStaticField(field));
+                        staticFields.Add(new PythonStaticField(this, field));
                     else
-                        fields.Add(new PythonField(field));
+                        fields.Add(new PythonField(this, field));
                 }
                 if (member is PropertyInfo prop)
                 {
                     if (isStatic)
-                        staticFields.Add(new PythonStaticField(prop));
+                        staticFields.Add(new PythonStaticField(this, prop));
                     else
-                        fields.Add(new PythonField(prop));
+                        fields.Add(new PythonField(this, prop));
                 }
             }
             else if (member is MethodInfo method)
@@ -71,18 +78,18 @@ namespace Motio.CSharp2Py
                     && !method.Name.StartsWith("remove_"))
                 {
                     if (isStatic)
-                        staticMethods.Add(new PythonStaticMethod(method));
+                        staticMethods.Add(new PythonStaticMethod(this, method));
                     else
-                        methods.Add(new PythonMethod(method));
+                        methods.Add(new PythonMethod(this, method));
                 }
             }
             else if (member is ConstructorInfo ctr)
             {
-                this.ctr = new PythonConstructor(ctr);
+                this.ctr = new PythonConstructor(this, ctr);
             }
             else if (member is EventInfo ev)
             {
-                events.Add(new PythonEvent(ev));
+                events.Add(new PythonEvent(this, ev));
             }
             else if (member is Type)
             {
@@ -104,7 +111,7 @@ namespace Motio.CSharp2Py
             //in a single file but since it'll never never anyway
             Imports(builder);
 
-            builder.Append($"class {CleanupName(className)}({ParentClasses()}):");
+            builder.Append($"class {Utils.CleanupNamePython(className)}({ParentClasses()}):");
             builder.AddIndent();
             builder.LineBreak();
 
@@ -123,7 +130,7 @@ namespace Motio.CSharp2Py
             foreach (Type type in parentClasses)
             {
                 string ns = type.Namespace;
-                string name = CleanupName(type);
+                string name = Utils.CleanupNamePython(type);
 
                 HashSet<string> inNs;
                 if (!namespaces.TryGetValue(ns, out inNs))
@@ -144,20 +151,22 @@ namespace Motio.CSharp2Py
             }
         }
 
-        public static string CleanupName(Type type)
-        {
-            string name = type.Name;
-            if (!name.Contains("`"))
-                return name;
+        //public static string CleanupName(Type type)
+        //{
+        //    string name = type.Name;
+        //    if (name.Contains("&"))
+        //        name = name.Replace("&", "");
+        //    if (!name.Contains("`"))
+        //        return name;
 
-            string[] split = name.Split(new char[] { '`' }, 2);
-            name = split[0] + "[" + String.Join(", ", type.GetGenericArguments().Select(p => CleanupName(p)).ToArray()) + "]";
-            return name;
-        }
+        //    string[] split = name.Split(new char[] { '`' }, 2);
+        //    name = split[0] + "[" + String.Join(", ", type.GetGenericArguments().Select(p => CleanupName(p)).ToArray()) + "]";
+        //    return name;
+        //}
 
         public string ParentClasses()
         {
-            return String.Join(", ", parentClasses.Select(p => CleanupName(p)));
+            return String.Join(", ", parentClasses.Select(p => Utils.CleanupNamePython(p)));
         }
 
         public void StaticFields(PythonFileBuilder builder)

@@ -9,12 +9,12 @@ namespace Motio.CSharp2Py
     {
         protected readonly ConstructorInfo ctr;
 
-        public PythonConstructor(ConstructorInfo constructor)
+        public PythonConstructor(PythonClass parent, ConstructorInfo constructor) : base(parent)
         {
             this.ctr = constructor;
         }
 
-        public PythonConstructor()
+        public PythonConstructor(PythonClass parent) : base(parent)
         {
 
         }

@@ -6,7 +6,7 @@ namespace Motio.CSharp2Py
     {
         protected readonly EventInfo ev;
 
-        public PythonEvent(EventInfo ev)
+        public PythonEvent(PythonClass parent, EventInfo ev) : base(parent)
         {
             this.ev = ev;
         }

@@ -4,11 +4,11 @@ namespace Motio.CSharp2Py
 {
     public class PythonStaticField : PythonField
     {
-        public PythonStaticField(PropertyInfo property) : base(property)
+        public PythonStaticField(PythonClass parent, PropertyInfo property) : base(parent, property)
         {
         }
 
-        public PythonStaticField(FieldInfo field) : base(field)
+        public PythonStaticField(PythonClass parent, FieldInfo field) : base(parent, field)
         {
         }
 

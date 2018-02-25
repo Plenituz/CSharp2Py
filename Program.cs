@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace Motio.CSharp2Py
 {
@@ -31,16 +32,30 @@ namespace Motio.CSharp2Py
             {
                 if(!regex.IsMatch(Path.GetFileName(dll)))
                     continue;
-                Assembly assembly = Assembly.LoadFrom(dll);//typeof(int).Assembly;
+                Assembly assembly = Assembly.LoadFrom(dll);
+                XDocument xmlDoc = FindXML(assembly);
+
                 foreach (Type type in assembly.GetTypes())
                 {
-                    hierarchy.Add(new PythonClass(type));
+                    hierarchy.Add(new PythonClass(type, xmlDoc));
                 }
-                //break;
+                
             }
 
             hierarchy.CreateDirectories();
             hierarchy.CreateFiles();
+        }
+
+        static XDocument FindXML(Assembly assembly)
+        {
+            string path = Path.GetDirectoryName(assembly.Location);
+            string file = Path.GetFileNameWithoutExtension(assembly.Location) + ".xml";
+            string fullPath = Path.Combine(path, file);
+
+            if (!File.Exists(fullPath))
+                return null;
+
+            return XDocument.Load(fullPath);
         }
     }
 }

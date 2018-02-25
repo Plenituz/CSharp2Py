@@ -6,7 +6,7 @@ namespace Motio.CSharp2Py
 {
     public class PythonStaticMethod : PythonMethod
     {
-        public PythonStaticMethod(MethodInfo method) : base(method)
+        public PythonStaticMethod(PythonClass parent, MethodInfo method) : base(parent, method)
         {
         }
 
